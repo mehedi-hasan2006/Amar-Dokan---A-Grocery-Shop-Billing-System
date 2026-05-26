@@ -16,6 +16,8 @@ import {
   FiList,
 } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa";
+import { authClient } from "@/lib/auth-client";
+import { Avatar } from "@heroui/react";
 
 const menuItems = [
   {
@@ -79,6 +81,9 @@ export default function Sidebar({ className = "" }) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState(["analytics", "users"]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const session = authClient.useSession();
+  const user = session?.data?.user;
 
   const toggleExpand = (itemId) => {
     setExpandedItems((prev) =>
@@ -291,15 +296,18 @@ export default function Sidebar({ className = "" }) {
 
         {/* User profile */}
         <div className="border-t border-slate-200/20 p-3 dark:border-slate-700/30">
-          <Link href="/profile">
+          <Link href="#">
             <div
               className={`flex items-center rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
                 isCollapsed ? "justify-center" : "gap-3"
               }`}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-500 text-sm font-medium text-white">
-                JD
-              </div>
+              <Avatar className="ring-2 ring-blue-500 ring-offset-2 group-hover:ring-purple-500 transition-all duration-300">
+                <Avatar.Image alt={user?.name || "User"} src={user?.image} />
+                <Avatar.Fallback className="bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold">
+                  {user?.name?.charAt(0) || "U"}
+                </Avatar.Fallback>
+              </Avatar>
               <AnimatePresence mode="wait">
                 {!isCollapsed && (
                   <motion.div
@@ -309,10 +317,10 @@ export default function Sidebar({ className = "" }) {
                     className="flex-1 overflow-hidden"
                   >
                     <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-                      John Doe
+                      {user?.name}
                     </p>
                     <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                      john@example.com
+                      {user?.email}
                     </p>
                   </motion.div>
                 )}

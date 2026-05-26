@@ -207,7 +207,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const session = authClient.useSession();
-  const user = session.data?.user;
+  const user = session?.data?.user;
 
   // Logout Function
   const handleLogout = async () => {
@@ -316,7 +316,7 @@ export default function Navbar() {
               <DropdownMenu
                 trigger={
                   <button className="flex items-center cursor-pointer space-x-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                       {getUserInitials(user.name)}
                     </div>
                     <div className="text-left hidden sm:block">
@@ -332,7 +332,7 @@ export default function Navbar() {
               >
                 <div className="px-3 py-3 border-b border-zinc-200 dark:border-zinc-700">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                       {getUserInitials(user?.name)}
                       {/* <Image
                         src={user?.image || getUserInitials(user?.name)}

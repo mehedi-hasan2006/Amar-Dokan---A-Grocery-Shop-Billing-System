@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { ShoppingCart } from "lucide-react";
 import {
   FiMenu,
   FiSun,
@@ -167,7 +168,7 @@ const DropdownMenu = ({ children, trigger }) => {
       </div>
       {isOpen && (
         <div
-          className="origin-top-right absolute right-0 mt-2 w-72 rounded-xl shadow-xl bg-white dark:bg-zinc-900 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 animate-in fade-in-0 zoom-in-95 p-2"
+          className="origin-top-right z-50 absolute right-0 mt-2 w-72 rounded-xl shadow-xl bg-white dark:bg-zinc-900 ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in-0 zoom-in-95 p-2"
           role="menu"
         >
           {children}
@@ -297,6 +298,17 @@ export default function Navbar() {
                 size={16}
               />
             </div>
+            <div>
+              <button className="flex relative cursor-pointer">
+                <ShoppingCart />
+                {/* {cart.length > 0 && (
+                  
+                )} */}
+                <div className="badge badge-sm  rounded-full badge-secondary absolute -right-4 -top-2">
+                  5
+                </div>
+              </button>
+            </div>
 
             {/* Login Button */}
             {!user && (
@@ -314,18 +326,19 @@ export default function Navbar() {
             {/* User Dropdown */}
             {user && (
               <DropdownMenu
+                className="z-50"
                 trigger={
                   <button className="flex items-center cursor-pointer space-x-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                     <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                       {getUserInitials(user.name)}
                     </div>
                     <div className="text-left hidden sm:block">
-                      <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      {/* <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                         {user.name}
-                      </div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                      </div> */}
+                      {/* <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         {user.email}
-                      </div>
+                      </div> */}
                     </div>
                   </button>
                 }

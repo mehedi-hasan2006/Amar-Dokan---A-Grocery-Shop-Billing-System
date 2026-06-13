@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Button, Card } from "@heroui/react";
 import { Plus, X, Upload } from "lucide-react";
+import { createProduct } from "@/lib/action";
 
 const AddProductPage = () => {
   const [formData, setFormData] = useState({
@@ -80,7 +81,7 @@ const AddProductPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
 
@@ -89,7 +90,10 @@ const AddProductPage = () => {
       return;
     }
 
-    console.log("Form Data:", formData);
+    // console.log("Form Data:", formData);
+
+    const callAddProductAPI = await createProduct(formData);
+
     setSuccess(true);
     setTimeout(() => {
       setFormData({
@@ -371,7 +375,9 @@ const AddProductPage = () => {
                     } bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors`}
                   />
                   {errors.minStockAlert && (
-                    <p className="text-sm text-red-500">{errors.minStockAlert}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.minStockAlert}
+                    </p>
                   )}
                 </div>
 

@@ -69,7 +69,7 @@ async function ProductsDetailsPage({ params }) {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-5">
             {/* Product Image - Takes 2 columns */}
-            <div className="lg:col-span-2 relative bg-gray-100 dark:bg-gray-800 min-h-[300px] lg:min-h-[500px] flex items-center justify-center p-8">
+            <div className="lg:col-span-2 relative bg-gray-100 dark:bg-gray-800 min-h-75 lg:min-h-125 flex items-center justify-center p-8">
               <div className="relative w-full max-w-md aspect-square">
                 <Image
                   src={product.imageUrl}
@@ -135,7 +135,7 @@ async function ProductsDetailsPage({ params }) {
                 {product.description && (
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-6">
                     <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <FileText className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
                       <div>
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                           Description
@@ -199,12 +199,12 @@ async function ProductsDetailsPage({ params }) {
               <div className="flex flex-wrap gap-3">
                 <button 
                   disabled={isOutOfStock}
-                  className="flex-1 min-w-[200px] bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-3.5 px-6 rounded-xl text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 min-w-50 bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-3.5 px-6 rounded-xl text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
-                <button className="flex-1 min-w-[150px] py-3.5 px-6 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+                <button className="flex-1 min-w-37.5 py-3.5 px-6 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                   <Truck className="w-5 h-5" />
                   Track Shipment
                 </button>

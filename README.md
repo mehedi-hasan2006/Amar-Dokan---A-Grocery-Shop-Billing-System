@@ -519,7 +519,7 @@ Frontend:
 
 Backend:
 
-- Render
+- Vercel
 
 Database:
 
@@ -527,7 +527,7 @@ Database:
 
 Images:
 
-- Cloudinary
+- ImgBB
 
 ---
 

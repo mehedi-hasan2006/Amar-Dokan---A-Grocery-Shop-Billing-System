@@ -63,7 +63,7 @@ const menuItems = [
     icon: FiUsers,
     href: "/users",
     subItems: [
-      { id: "all-users", title: "All Users", href: "/users/all" },
+      { id: "all-users", title: "All Users", href: "/users/all-users" },
       { id: "roles", title: "Roles", href: "/users/roles" },
       { id: "permissions", title: "Permissions", href: "/users/permissions" },
       { id: "addUser", title: "Add User", href: "/users/add-user" },

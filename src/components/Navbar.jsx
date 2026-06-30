@@ -15,21 +15,21 @@ import {
   FiCreditCard,
   FiHelpCircle,
   FiLogOut,
+  FiX,
 } from "react-icons/fi";
-import Image from "next/image";
 
 const Logo = () => (
-  <div className="flex items-center justify-center gap-2">
-    <div className="relative w-7 h-7">
+  <div className="flex items-center gap-2.5">
+    <div className="relative w-8 h-8">
       <svg
         viewBox="0 0 200 200"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-full"
       >
-        <g clipPath="url(#cs_clip_1_glass)">
+        <g clipPath="url(#cs_clip_1_nav)">
           <mask
-            id="cs_mask_1_glass"
+            id="cs_mask_1_nav"
             style={{ maskType: "alpha" }}
             width="200"
             height="186"
@@ -42,10 +42,10 @@ const Logo = () => (
               d="M150.005 128.863c66.681 38.481-49.997 105.828-49.997 28.861 0 76.967-116.658 9.62-49.997-28.861-66.681 38.481-66.681-96.207 0-57.727-66.681-38.48 49.997-105.827 49.997-28.86 0-76.967 116.657-9.62 49.997 28.86 66.66-38.48 66.66 96.208 0 57.727z"
             />
           </mask>
-          <g mask="url(#cs_mask_1_glass)">
+          <g mask="url(#cs_mask_1_nav)">
             <path fill="#fff" d="M200 0H0v200h200V0z" />
-            <path fill="url(#paint0_linear_glass)" d="M200 0H0v200h200V0z" />
-            <g filter="url(#filter0_f_glass)">
+            <path fill="url(#paint0_linear_nav)" d="M200 0H0v200h200V0z" />
+            <g filter="url(#filter0_f_nav)">
               <path fill="#00D4FF" d="M130 0H69v113h61V0z" />
               <path
                 fill="#00FF88"
@@ -62,7 +62,7 @@ const Logo = () => (
         </g>
         <defs>
           <filter
-            id="filter0_f_glass"
+            id="filter0_f_nav"
             width="278"
             height="310"
             x="-27"
@@ -77,12 +77,12 @@ const Logo = () => (
               result="shape"
             />
             <feGaussianBlur
-              result="effect1_foregroundBlur_glass"
+              result="effect1_foregroundBlur_nav"
               stdDeviation="27.5"
             />
           </filter>
           <linearGradient
-            id="paint0_linear_glass"
+            id="paint0_linear_nav"
             x1="186.5"
             x2="37"
             y1="37"
@@ -92,60 +92,17 @@ const Logo = () => (
             <stop stopColor="#00D4FF" stopOpacity="0.8" />
             <stop offset="1" stopColor="#00FF88" stopOpacity="0.6" />
           </linearGradient>
-          <clipPath id="cs_clip_1_glass">
+          <clipPath id="cs_clip_1_nav">
             <path fill="#fff" d="M0 0H200V200H0z" />
           </clipPath>
         </defs>
       </svg>
     </div>
-    <span className="font-bold text-lg tracking-wider text-gray-900 dark:text-white">
+    <span className="font-bold text-lg tracking-wide bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
       আমার দোকান
     </span>
   </div>
 );
-
-const Button = React.forwardRef(
-  (
-    {
-      className = "",
-      variant = "default",
-      size = "default",
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const baseClasses =
-      "inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 backdrop-blur-sm";
-
-    const variantClasses = {
-      default:
-        "bg-gray-900 dark:bg-white text-gray-100 dark:text-gray-900 border border-gray-800 dark:border-gray-300 hover:bg-gray-800 dark:hover:bg-gray-100 hover:border-gray-700 dark:hover:border-gray-400 shadow-lg hover:shadow-xl",
-      ghost:
-        "hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white backdrop-blur-sm",
-      glass:
-        "bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 shadow-2xl hover:shadow-3xl backdrop-blur-md",
-    };
-
-    const sizeClasses = {
-      default: "h-10 px-4 py-2",
-      sm: "h-9 rounded-lg px-3",
-      icon: "h-10 w-10",
-    };
-
-    return (
-      <button
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-        ref={ref}
-        {...props}
-      >
-        {children}
-      </button>
-    );
-  },
-);
-
-Button.displayName = "Button";
 
 const DropdownMenu = ({ children, trigger }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -162,13 +119,13 @@ const DropdownMenu = ({ children, trigger }) => {
   }, []);
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
         {trigger}
       </div>
       {isOpen && (
         <div
-          className="origin-top-right z-50 absolute right-0 mt-2 w-72 rounded-xl shadow-xl bg-white dark:bg-zinc-900 ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in-0 zoom-in-95 p-2"
+          className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-2 z-50 animate-in fade-in-0 zoom-in-95"
           role="menu"
         >
           {children}
@@ -178,21 +135,27 @@ const DropdownMenu = ({ children, trigger }) => {
   );
 };
 
-const DropdownMenuItem = ({ children, onClick }) => (
-  <button
-    onClick={(e) => {
-      e.preventDefault();
-      if (onClick) onClick();
-    }}
-    className="w-full text-left text-zinc-700 dark:text-zinc-300 group flex items-center px-3 py-2.5 text-sm rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150"
-    role="menuitem"
-  >
-    {children}
-  </button>
-);
+const DropdownMenuItem = ({ children, onClick, href }) => {
+  const Component = href ? Link : "button";
+  return (
+    <Component
+      href={href}
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="w-full text-left flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      role="menuitem"
+    >
+      {children}
+    </Component>
+  );
+};
 
 const DropdownMenuSeparator = () => (
-  <div className="my-2 h-px bg-zinc-200 dark:bg-zinc-700" />
+  <div className="my-2 h-px bg-gray-200 dark:bg-gray-700" />
 );
 
 const navigationLinks = [
@@ -210,18 +173,17 @@ export default function Navbar() {
   const session = authClient.useSession();
   const user = session?.data?.user;
 
-  // Logout Function
-  const handleLogout = async () => {
-    await authClient.signOut();
-  };
-
-  // useEffect to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleLogout = async () => {
+    await authClient.signOut();
+  };
+
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
   };
 
   const getUserInitials = (name) => {
@@ -234,17 +196,14 @@ export default function Navbar() {
       .slice(0, 2);
   };
 
-  // Don't render theme-dependent content until mounted
   if (!mounted) {
     return (
-      <header className="relative w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
+      <header className="sticky top-0 z-50 w-full bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="shrink-0">
-              <Link href="/" className="text-gray-900 dark:text-white">
-                <Logo />
-              </Link>
-            </div>
+            <Link href="/">
+              <Logo />
+            </Link>
           </div>
         </div>
       </header>
@@ -252,135 +211,106 @@ export default function Navbar() {
   }
 
   return (
-    <header className="relative w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
+    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="shrink-0">
-            <Link
-              href="/"
-              className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
-            >
+            <Link href="/">
               <Logo />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <nav className="relative z-10">
-              <ul className="flex items-center gap-8">
-                {navigationLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
-                    >
-                      {link.label}
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+          <div className="hidden lg:flex items-center gap-1">
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Search Bar */}
-            <div className="relative hidden lg:block">
-              <input
-                className="w-64 h-10 pl-10 pr-4 rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 backdrop-blur-sm transition-all duration-300"
-                placeholder="Search..."
-                type="search"
-              />
+            <div className="relative hidden md:block">
               <FiSearch
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 size={16}
               />
+              <input
+                className="w-48 lg:w-64 h-10 pl-10 pr-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+                placeholder="Search products..."
+                type="search"
+              />
             </div>
-            <div>
-              <button className="flex relative cursor-pointer">
-                <ShoppingCart />
-                {/* {cart.length > 0 && (
-                  
-                )} */}
-                <div className="badge badge-sm  rounded-full badge-secondary absolute -right-4 -top-2">
-                  5
-                </div>
-              </button>
-            </div>
+
+            {/* Cart Button */}
+            <Link
+              href="/cart"
+              className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+            >
+              <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-lg">
+                5
+              </span>
+            </Link>
 
             {/* Login Button */}
             {!user && (
-              <Link href="/login">
-                <Button
-                  variant="glass"
-                  size="sm"
-                  className="hidden sm:flex cursor-pointer"
-                >
-                  Login
-                </Button>
+              <Link
+                href="/login"
+                className="hidden sm:inline-flex items-center justify-center h-10 px-6 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                Sign In
               </Link>
             )}
 
             {/* User Dropdown */}
             {user && (
               <DropdownMenu
-                className="z-50"
                 trigger={
-                  <button className="flex items-center cursor-pointer space-x-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                    <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  <button className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg">
                       {getUserInitials(user.name)}
-                    </div>
-                    <div className="text-left hidden sm:block">
-                      {/* <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        {user.name}
-                      </div> */}
-                      {/* <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {user.email}
-                      </div> */}
                     </div>
                   </button>
                 }
               >
-                <div className="px-3 py-3 border-b border-zinc-200 dark:border-zinc-700">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                       {getUserInitials(user?.name)}
-                      {/* <Image
-                        src={user?.image || getUserInitials(user?.name)}
-                        alt={user?.name}
-                        width={10}
-                        height={10}
-                      ></Image> */}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                         {user.name}
                       </div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {user.email}
                       </div>
-                      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
                         Pro Plan
-                      </div>
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="py-1">
-                  <Link href="/profile">
-                    <DropdownMenuItem>
-                      <FiUser className="mr-3 h-4 w-4 text-zinc-500" />
-                      Your Profile
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem>
-                    <FiSettings className="mr-3 h-4 w-4 text-zinc-500" />
+                  <DropdownMenuItem href="/profile">
+                    <FiUser className="w-4 h-4" />
+                    Your Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem href="/settings">
+                    <FiSettings className="w-4 h-4" />
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FiCreditCard className="mr-3 h-4 w-4 text-zinc-500" />
+                  <DropdownMenuItem href="/billing">
+                    <FiCreditCard className="w-4 h-4" />
                     Billing & Plans
                   </DropdownMenuItem>
                 </div>
@@ -388,12 +318,12 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
 
                 <div className="py-1">
-                  <DropdownMenuItem>
-                    <FiHelpCircle className="mr-3 h-4 w-4 text-zinc-500" />
+                  <DropdownMenuItem href="/help">
+                    <FiHelpCircle className="w-4 h-4" />
                     Help & Support
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
-                    <FiLogOut className="mr-3 h-4 w-4 text-zinc-500" />
+                    <FiLogOut className="w-4 h-4" />
                     Sign Out
                   </DropdownMenuItem>
                 </div>
@@ -403,40 +333,51 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-600 cursor-pointer dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 dark:focus:ring-gray-400 transition-colors duration-300"
-              aria-label="Toggle theme"
+              className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all group"
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
-              {theme === "dark" ? (
-                <FiSun className="h-5 w-5" />
-              ) : (
-                <FiMoon className="h-5 w-5" />
-              )}
+              <div className="relative w-5 h-5">
+                <FiSun
+                  className={`absolute inset-0 w-5 h-5 text-gray-600 dark:text-gray-400 transition-all duration-300 ${
+                    theme === "dark"
+                      ? "opacity-0 rotate-90 scale-50"
+                      : "opacity-100 rotate-0 scale-100"
+                  }`}
+                />
+                <FiMoon
+                  className={`absolute inset-0 w-5 h-5 text-gray-600 dark:text-gray-400 transition-all duration-300 ${
+                    theme === "dark"
+                      ? "opacity-100 rotate-0 scale-100"
+                      : "opacity-0 -rotate-90 scale-50"
+                  }`}
+                />
+              </div>
             </button>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="group text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-expanded={isMenuOpen}
-              >
-                <FiMenu className="h-5 w-5" />
-              </Button>
-            </div>
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? (
+                <FiX className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              ) : (
+                <FiMenu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              )}
+            </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-600 mt-2">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800">
+            <div className="px-2 py-3 space-y-1">
               {navigationLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-300"
+                  className="block px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
@@ -445,10 +386,10 @@ export default function Navbar() {
               {!user && (
                 <Link
                   href="/login"
-                  className="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-300"
+                  className="block px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-center mt-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Login
+                  Sign In
                 </Link>
               )}
             </div>

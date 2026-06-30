@@ -33,7 +33,9 @@ async function ProductsDetailsPage({ params }) {
 
   const isLowStock = product.quantity <= product.minStockAlert;
   const isOutOfStock = product.quantity === 0;
-  const profit = (parseFloat(product.price) - parseFloat(product.costPrice)).toFixed(2);
+  const profit = (
+    parseFloat(product.price) - parseFloat(product.costPrice)
+  ).toFixed(2);
   const profitMargin = ((profit / parseFloat(product.price)) * 100).toFixed(1);
 
   return (
@@ -49,12 +51,14 @@ async function ProductsDetailsPage({ params }) {
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="hidden sm:inline">Back to Products</span>
             </Link>
-            
+
             <div className="flex items-center gap-2">
-              <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors">
-                <Pencil className="w-4 h-4" />
-                Edit Product
-              </button>
+              <Link href={`/products/${product._id}/edit`}>
+                <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors">
+                  <Pencil className="w-4 h-4" />
+                  Edit Product
+                </button>
+              </Link>
               <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors">
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -78,7 +82,7 @@ async function ProductsDetailsPage({ params }) {
                   className="object-cover rounded-xl shadow-2xl"
                   priority
                 />
-                
+
                 {/* Status Badge */}
                 <div className="absolute top-4 left-4">
                   {isOutOfStock ? (
@@ -180,12 +184,15 @@ async function ProductsDetailsPage({ params }) {
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
                     <Calendar className="w-5 h-5 text-gray-400 mb-2" />
                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                      {product.expireDate 
-                        ? new Date(product.expireDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
+                      {product.expireDate
+                        ? new Date(product.expireDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )
                         : "No expiry"}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -197,12 +204,12 @@ async function ProductsDetailsPage({ params }) {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                <button 
+                <button
                   disabled={isOutOfStock}
                   className="flex-1 min-w-50 bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-3.5 px-6 rounded-xl text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
                 <button className="flex-1 min-w-37.5 py-3.5 px-6 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                   <Truck className="w-5 h-5" />
@@ -228,7 +235,9 @@ async function ProductsDetailsPage({ params }) {
                   <div className="flex items-center gap-3">
                     <Box className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Current Stock</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Current Stock
+                      </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {product.quantity} {product.unit}
                       </p>
@@ -245,7 +254,9 @@ async function ProductsDetailsPage({ params }) {
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Min Stock Alert</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Min Stock Alert
+                      </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {product.minStockAlert} {product.unit}
                       </p>
@@ -257,7 +268,9 @@ async function ProductsDetailsPage({ params }) {
                   <div className="flex items-center gap-3">
                     <Scale className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Unit</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Unit
+                      </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {product.unit}
                       </p>
@@ -269,7 +282,9 @@ async function ProductsDetailsPage({ params }) {
                   <div className="flex items-center gap-3">
                     <Barcode className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Barcode</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Barcode
+                      </p>
                       <p className="text-sm font-mono font-semibold text-gray-900 dark:text-white">
                         {product.barcode || "N/A"}
                       </p>
@@ -340,7 +355,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Building2 className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Name
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {product.supplier}
                     </p>
@@ -359,7 +376,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Hash className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Product Code</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Product Code
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {product.productCode}
                     </p>
@@ -369,7 +388,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Tag className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Category</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Category
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {product.category}
                     </p>
@@ -379,7 +400,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Tag className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Brand</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Brand
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {product.brand}
                     </p>
@@ -389,14 +412,19 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Calendar className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Expiry Date</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Expiry Date
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {product.expireDate 
-                        ? new Date(product.expireDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })
+                      {product.expireDate
+                        ? new Date(product.expireDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )
                         : "No expiry date"}
                     </p>
                   </div>
@@ -405,7 +433,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <QrCode className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Barcode</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Barcode
+                    </p>
                     <p className="text-sm font-mono font-semibold text-gray-900 dark:text-white">
                       {product.barcode || "N/A"}
                     </p>
@@ -415,7 +445,9 @@ async function ProductsDetailsPage({ params }) {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Created At</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Created At
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {new Date(product.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -428,10 +460,35 @@ async function ProductsDetailsPage({ params }) {
                   </div>
                 </div>
 
+                {product.updatedAt && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Updated At
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {new Date(product.updatedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <Hash className="w-4 h-4 text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Product ID</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Product ID
+                    </p>
                     <p className="text-xs font-mono font-semibold text-gray-900 dark:text-white truncate">
                       {product._id}
                     </p>

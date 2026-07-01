@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardBody,
@@ -27,142 +27,196 @@ import {
   Download,
   Calendar,
   Plus,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
+import {
+  getDashboardStats,
+  getProducts,
+  getPayments,
+} from "@/api/dashboardApi";
+import { toast } from "react-toastify";
 
 const DashboardPage = () => {
   const [timeFilter, setTimeFilter] = useState("today");
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    totalProducts: 0,
+    todaySells: 0,
+    availableProducts: 0,
+    stockOutProducts: 0,
+    todayRevenue: 0,
+    yesterdayRevenue: 0,
+    totalCustomers: 0,
+    avgBillAmount: 0,
+    profitToday: 0,
+    profitYesterday: 0,
+    revenueGrowth: 0,
+    customerGrowth: 0,
+    lowStockProducts: [],
+    recentBills: [],
+    topProducts: [],
+  });
 
-  // ==================== STATIC MOCK DATA ====================
-  const dashboardData = {
-    totalProducts: 245,
-    todaySells: 47,
-    availableProducts: 198,
-    stockOutProducts: 47,
-    todayRevenue: 28450,
-    yesterdayRevenue: 25300,
-    totalCustomers: 89,
-    avgBillAmount: 605,
-    profitToday: 8540,
-    profitYesterday: 7200,
-    revenueGrowth: 12.5,
-    customerGrowth: 8.3,
+  useEffect(() => {
+    fetchDashboardData();
+  }, [timeFilter]);
 
-    lowStockProducts: [
-      {
-        id: 1,
-        name: "Fresh Milk 500ml",
-        stock: 3,
-        minStock: 20,
-        status: "critical",
-      },
-      {
-        id: 2,
-        name: "Parle-G Biscuit",
-        stock: 8,
-        minStock: 15,
-        status: "warning",
-      },
-      {
-        id: 3,
-        name: "Pran Mineral Water",
-        stock: 5,
-        minStock: 25,
-        status: "critical",
-      },
-      {
-        id: 4,
-        name: "Sugar 1kg",
-        stock: 12,
-        minStock: 20,
-        status: "warning",
-      },
-    ],
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Fetch all required data
+      const [statsRes, productsRes, paymentsRes] = await Promise.all([
+        getDashboardStats(timeFilter),
+        getProducts(),
+        getPayments(timeFilter),
+      ]);
 
-    recentBills: [
-      {
-        id: "BILL-001",
-        customer: "Walk-in Customer",
-        items: 5,
-        amount: 450,
-        payment: "Cash",
-        time: "10:30 AM",
-        status: "completed",
-      },
-      {
-        id: "BILL-002",
-        customer: "Rahim Uddin",
-        items: 3,
-        amount: 320,
-        payment: "Bkash",
-        time: "11:15 AM",
-        status: "completed",
-      },
-      {
-        id: "BILL-003",
-        customer: "Walk-in Customer",
-        items: 8,
-        amount: 890,
-        payment: "Cash",
-        time: "12:00 PM",
-        status: "completed",
-      },
-      {
-        id: "BILL-004",
-        customer: "Fatema Begum",
-        items: 2,
-        amount: 180,
-        payment: "Card",
-        time: "12:45 PM",
-        status: "completed",
-      },
-      {
-        id: "BILL-005",
-        customer: "Walk-in Customer",
-        items: 6,
-        amount: 675,
-        payment: "Cash",
-        time: "01:30 PM",
-        status: "pending",
-      },
-    ],
+      // Process products
+      const products = productsRes || [];
+      const totalProducts = products.length;
+      const availableProducts = products.filter(
+        (p) => parseInt(p.quantity) > 0,
+      ).length;
+      const stockOutProducts = products.filter(
+        (p) => parseInt(p.quantity) === 0,
+      ).length;
 
-    topProducts: [
-      {
-        id: 1,
-        name: "Fresh Milk 500ml",
-        sold: 45,
-        revenue: 3150,
-        trend: "up",
-      },
-      {
-        id: 2,
-        name: "Parle-G Biscuit",
-        sold: 38,
-        revenue: 380,
-        trend: "up",
-      },
-      {
-        id: 3,
-        name: "Pran Mineral Water",
-        sold: 32,
-        revenue: 640,
-        trend: "down",
-      },
-      {
-        id: 4,
-        name: "Eggs (Dozen)",
-        sold: 28,
-        revenue: 3360,
-        trend: "up",
-      },
-      {
-        id: 5,
-        name: "Sugar 1kg",
-        sold: 25,
-        revenue: 2250,
-        trend: "down",
-      },
-    ],
+      // Find low stock products
+      const lowStockProducts = products
+        .filter(
+          (p) =>
+            parseInt(p.quantity) > 0 &&
+            parseInt(p.quantity) <= parseInt(p.minStockAlert || 10),
+        )
+        .map((p) => ({
+          id: p._id,
+          name: p.productName,
+          stock: parseInt(p.quantity),
+          minStock: parseInt(p.minStockAlert || 10),
+          status:
+            parseInt(p.quantity) <= parseInt(p.minStockAlert || 10) / 2
+              ? "critical"
+              : "warning",
+        }))
+        .slice(0, 5);
+
+      // Process payments
+      const payments = paymentsRes?.data || [];
+      const todayPayments = payments.filter((p) => {
+        const today = new Date();
+        const paymentDate = new Date(p.createdAt);
+        return paymentDate.toDateString() === today.toDateString();
+      });
+
+      const todayRevenue = todayPayments.reduce(
+        (sum, p) => sum + (p.totalAmount || 0),
+        0,
+      );
+      const yesterdayPayments = payments.filter((p) => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const paymentDate = new Date(p.createdAt);
+        return paymentDate.toDateString() === yesterday.toDateString();
+      });
+      const yesterdayRevenue = yesterdayPayments.reduce(
+        (sum, p) => sum + (p.totalAmount || 0),
+        0,
+      );
+
+      // Calculate growth
+      const revenueGrowth =
+        yesterdayRevenue > 0
+          ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100
+          : 100;
+
+      const todaySells = todayPayments.length;
+
+      // Get unique customers
+      const uniqueCustomers = new Set(
+        payments.map((p) => p.phone || p.customerName),
+      );
+      const totalCustomers = uniqueCustomers.size;
+
+      // Average bill amount
+      const avgBillAmount =
+        todaySells > 0 ? Math.round(todayRevenue / todaySells) : 0;
+
+      // Calculate profit (assuming 30% profit margin - adjust based on your actual cost data)
+      const profitMargin = 0.3;
+      const profitToday = Math.round(todayRevenue * profitMargin);
+      const profitYesterday = Math.round(yesterdayRevenue * profitMargin);
+
+      // Recent bills
+      const recentBills = todayPayments.slice(0, 5).map((p) => ({
+        id: p.orderId?.toString() || p._id,
+        customer: p.customerName || "Walk-in Customer",
+        items: p.items?.length || 0,
+        amount: p.totalAmount || 0,
+        payment:
+          p.paymentMethod === "cash"
+            ? "Cash"
+            : p.paymentMethod === "card"
+              ? "Card"
+              : p.paymentMethod === "bkash"
+                ? "Bkash"
+                : "Mobile Banking",
+        time: new Date(p.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        status: "completed",
+      }));
+
+      // Top products (from all payments, not just today)
+      const productSales = {};
+      payments.forEach((p) => {
+        p.items?.forEach((item) => {
+          if (!productSales[item.productName]) {
+            productSales[item.productName] = {
+              name: item.productName,
+              sold: 0,
+              revenue: 0,
+            };
+          }
+          productSales[item.productName].sold += item.quantity || 1;
+          productSales[item.productName].revenue +=
+            parseFloat(item.price) * (item.quantity || 1);
+        });
+      });
+
+      const topProducts = Object.values(productSales)
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5)
+        .map((product, index) => ({
+          id: index + 1,
+          ...product,
+          trend: index < 3 ? "up" : "down",
+        }));
+
+      setDashboardData({
+        totalProducts,
+        todaySells,
+        availableProducts,
+        stockOutProducts,
+        todayRevenue,
+        yesterdayRevenue,
+        totalCustomers,
+        avgBillAmount,
+        profitToday,
+        profitYesterday,
+        revenueGrowth,
+        customerGrowth: 8.3, // Keep static or calculate from customer data
+        lowStockProducts,
+        recentBills,
+        topProducts,
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ==================== MAIN METRICS ====================
@@ -185,8 +239,8 @@ const DashboardPage = () => {
       gradient: "from-green-500 to-emerald-500",
       bgColor: "bg-green-50 dark:bg-green-950",
       textColor: "text-green-600 dark:text-green-400",
-      subtext: `↑ ${dashboardData.revenueGrowth}% vs yesterday`,
-      trend: "up",
+      subtext: `${dashboardData.revenueGrowth >= 0 ? "↑" : "↓"} ${Math.abs(dashboardData.revenueGrowth).toFixed(1)}% vs yesterday`,
+      trend: dashboardData.revenueGrowth >= 0 ? "up" : "down",
     },
     {
       id: 3,
@@ -196,7 +250,7 @@ const DashboardPage = () => {
       gradient: "from-purple-500 to-violet-500",
       bgColor: "bg-purple-50 dark:bg-purple-950",
       textColor: "text-purple-600 dark:text-purple-400",
-      subtext: `Avg: ৳${dashboardData.avgBillAmount}`,
+      subtext: `Avg: ৳${dashboardData.avgBillAmount.toLocaleString()}`,
     },
     {
       id: 4,
@@ -206,8 +260,14 @@ const DashboardPage = () => {
       gradient: "from-orange-500 to-red-500",
       bgColor: "bg-orange-50 dark:bg-orange-950",
       textColor: "text-orange-600 dark:text-orange-400",
-      subtext: `↑ ${(((dashboardData.profitToday - dashboardData.profitYesterday) / dashboardData.profitYesterday) * 100).toFixed(1)}%`,
-      trend: "up",
+      subtext:
+        dashboardData.profitYesterday > 0
+          ? `${dashboardData.profitToday >= dashboardData.profitYesterday ? "↑" : "↓"} ${Math.abs(((dashboardData.profitToday - dashboardData.profitYesterday) / dashboardData.profitYesterday) * 100).toFixed(1)}%`
+          : "No data",
+      trend:
+        dashboardData.profitToday >= dashboardData.profitYesterday
+          ? "up"
+          : "down",
     },
     {
       id: 5,
@@ -217,7 +277,7 @@ const DashboardPage = () => {
       gradient: "from-pink-500 to-rose-500",
       bgColor: "bg-pink-50 dark:bg-pink-950",
       textColor: "text-pink-600 dark:text-pink-400",
-      subtext: `↑ ${dashboardData.customerGrowth}%`,
+      subtext: "Unique customers",
       trend: "up",
     },
     {
@@ -266,6 +326,19 @@ const DashboardPage = () => {
     return "bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
   };
 
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            Loading dashboard...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
@@ -286,21 +359,32 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {/* Time Filter */}
-          <div className="flex gap-1 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            {timeFilters.map((filter) => (
-              <button
-                key={filter.key}
-                onClick={() => setTimeFilter(filter.key)}
-                className={`px-3 py-1.5 text-xs sm:text-sm rounded-md transition-colors font-medium ${
-                  timeFilter === filter.key
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            {/* Time Filter */}
+            <div className="flex gap-1 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              {timeFilters.map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setTimeFilter(filter.key)}
+                  className={`px-3 py-1.5 text-xs sm:text-sm rounded-md transition-colors font-medium ${
+                    timeFilter === filter.key
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={fetchDashboardData}
+              className="p-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title="Refresh data"
+            >
+              <RefreshCw className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
           </div>
         </div>
 
@@ -358,7 +442,7 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* ========== LEFT COLUMN ========== */}
           <div className="lg:col-span-2 space-y-4 lg:space-y-6">
-            {/* Recent Bills - Using simple div table instead of HeroUI Table */}
+            {/* Recent Bills */}
             <Card shadow="sm">
               <CardHeader className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-0">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -375,75 +459,85 @@ const DashboardPage = () => {
                 </Button>
               </CardHeader>
               <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                {/* Simple Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Bill No
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Customer
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Items
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Amount
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Payment
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Time
-                        </th>
-                        <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dashboardData.recentBills.map((bill) => (
-                        <tr
-                          key={bill.id}
-                          className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                        >
-                          <td className="py-3 px-2 font-medium">{bill.id}</td>
-                          <td className="py-3 px-2">{bill.customer}</td>
-                          <td className="py-3 px-2">{bill.items}</td>
-                          <td className="py-3 px-2 font-semibold">
-                            ৳{bill.amount}
-                          </td>
-                          <td className="py-3 px-2">
-                            <Chip
-                              color={getPaymentChipColor(bill.payment)}
-                              variant="flat"
-                              size="sm"
-                            >
-                              {bill.payment}
-                            </Chip>
-                          </td>
-                          <td className="py-3 px-2">
-                            <span className="flex items-center gap-1 text-gray-500">
-                              <Clock className="w-3 h-3" />
-                              {bill.time}
-                            </span>
-                          </td>
-                          <td className="py-3 px-2">
-                            <Chip
-                              color={getStatusChipColor(bill.status)}
-                              variant="dot"
-                              size="sm"
-                            >
-                              {bill.status}
-                            </Chip>
-                          </td>
+                {dashboardData.recentBills.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Receipt className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No bills today
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Bill No
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Customer
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Items
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Amount
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Payment
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Time
+                          </th>
+                          <th className="text-left py-3 px-2 text-xs font-semibold text-gray-500 uppercase">
+                            Status
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {dashboardData.recentBills.map((bill) => (
+                          <tr
+                            key={bill.id}
+                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                          >
+                            <td className="py-3 px-2 font-medium">
+                              #{bill.id}
+                            </td>
+                            <td className="py-3 px-2">{bill.customer}</td>
+                            <td className="py-3 px-2">{bill.items}</td>
+                            <td className="py-3 px-2 font-semibold">
+                              ৳{bill.amount.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-2">
+                              <Chip
+                                color={getPaymentChipColor(bill.payment)}
+                                variant="flat"
+                                size="sm"
+                              >
+                                {bill.payment}
+                              </Chip>
+                            </td>
+                            <td className="py-3 px-2">
+                              <span className="flex items-center gap-1 text-gray-500">
+                                <Clock className="w-3 h-3" />
+                                {bill.time}
+                              </span>
+                            </td>
+                            <td className="py-3 px-2">
+                              <Chip
+                                color={getStatusChipColor(bill.status)}
+                                variant="dot"
+                                size="sm"
+                              >
+                                {bill.status}
+                              </Chip>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </Card>
 
@@ -459,40 +553,49 @@ const DashboardPage = () => {
                 </Button>
               </CardHeader>
               <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                <div className="space-y-2">
-                  {dashboardData.topProducts.map((product, index) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankColor(index)}`}
-                        >
-                          {index + 1}
-                        </span>
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white text-sm">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {product.sold} units sold
-                          </p>
+                {dashboardData.topProducts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Star className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No sales data yet
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {dashboardData.topProducts.map((product, index) => (
+                      <div
+                        key={product.id}
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankColor(index)}`}
+                          >
+                            {index + 1}
+                          </span>
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white text-sm">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {product.sold} units sold
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                            ৳{product.revenue.toLocaleString()}
+                          </span>
+                          {product.trend === "up" ? (
+                            <ArrowUp className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <ArrowDown className="w-4 h-4 text-red-500" />
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                          ৳{product.revenue.toLocaleString()}
-                        </span>
-                        {product.trend === "up" ? (
-                          <ArrowUp className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <ArrowDown className="w-4 h-4 text-red-500" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -508,41 +611,54 @@ const DashboardPage = () => {
                 </h2>
               </CardHeader>
               <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                <div className="space-y-4">
-                  {dashboardData.lowStockProducts.map((product) => (
-                    <div key={product.id} className="space-y-1.5">
-                      <div className="flex justify-between items-start">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {product.name}
-                        </p>
-                        <Chip
-                          color={
-                            product.status === "critical" ? "danger" : "warning"
-                          }
-                          variant="flat"
-                          size="sm"
-                        >
-                          {product.status === "critical"
-                            ? "Critical"
-                            : "Warning"}
-                        </Chip>
+                {dashboardData.lowStockProducts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">
+                      All products are well stocked
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {dashboardData.lowStockProducts.map((product) => (
+                      <div key={product.id} className="space-y-1.5">
+                        <div className="flex justify-between items-start">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {product.name}
+                          </p>
+                          <Chip
+                            color={
+                              product.status === "critical"
+                                ? "danger"
+                                : "warning"
+                            }
+                            variant="flat"
+                            size="sm"
+                          >
+                            {product.status === "critical"
+                              ? "Critical"
+                              : "Warning"}
+                          </Chip>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ProgressBar
+                            value={(product.stock / product.minStock) * 100}
+                            color={
+                              product.status === "critical"
+                                ? "danger"
+                                : "warning"
+                            }
+                            size="sm"
+                            className="flex-1"
+                          />
+                          <span className="text-xs text-gray-500 min-w-[45px]">
+                            {product.stock}/{product.minStock}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <ProgressBar
-                          value={(product.stock / product.minStock) * 100}
-                          color={
-                            product.status === "critical" ? "danger" : "warning"
-                          }
-                          size="sm"
-                          className="flex-1"
-                        />
-                        <span className="text-xs text-gray-500 min-w-[45px]">
-                          {product.stock}/{product.minStock}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
                 <Button
                   color="danger"
                   variant="light"
@@ -620,7 +736,6 @@ const DashboardPage = () => {
                       ৳{dashboardData.todayRevenue.toLocaleString()}
                     </span>
                   </div>
-                  {/* <Divider /> */}
                   <div className="flex justify-between items-center py-3">
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
                       Total Bills
@@ -629,16 +744,14 @@ const DashboardPage = () => {
                       {dashboardData.todaySells}
                     </span>
                   </div>
-                  {/* <Divider /> */}
                   <div className="flex justify-between items-center py-3">
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
                       Avg. Bill
                     </span>
                     <span className="font-semibold text-sm">
-                      ৳{dashboardData.avgBillAmount}
+                      ৳{dashboardData.avgBillAmount.toLocaleString()}
                     </span>
                   </div>
-                  {/* <Divider /> */}
                   <div className="flex justify-between items-center py-3">
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
                       Profit

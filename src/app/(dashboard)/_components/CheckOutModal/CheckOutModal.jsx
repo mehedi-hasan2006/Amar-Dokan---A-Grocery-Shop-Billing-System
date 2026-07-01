@@ -158,8 +158,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete, user }) => {
 
       console.log("Payment response:", res);
 
-
-      if (res.success ) {
+      if (res.success) {
         const generatedOrderId = res.orderId || res.data.orderId;
 
         if (!generatedOrderId) {
@@ -227,6 +226,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete, user }) => {
       });
       if (onCheckoutComplete) onCheckoutComplete();
     }
+    window.location.reload(); // Refresh the page to clear the cart and reset state
   };
 
   const changeAmount =

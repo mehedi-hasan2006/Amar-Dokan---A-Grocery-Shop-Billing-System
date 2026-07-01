@@ -18,6 +18,7 @@ import {
 import { FaPlus } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import { Avatar } from "@heroui/react";
+import { DollarSign } from "lucide-react";
 
 const menuItems = [
   {
@@ -37,6 +38,12 @@ const menuItems = [
     title: "Add Products",
     icon: FaPlus,
     href: "/add-product",
+  },
+  {
+    id: "payments",
+    title: "Payments",
+    icon: DollarSign,
+    href: "/payments",
   },
   {
     id: "analytics",

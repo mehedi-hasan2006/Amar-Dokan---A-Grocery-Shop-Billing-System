@@ -9,9 +9,6 @@ import {
   MapPin,
   Mail,
   CreditCard,
-  Truck,
-  ShoppingBag,
-  Receipt,
   Banknote,
   Wallet,
   Smartphone,
@@ -21,22 +18,28 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
-  Star,
   Shield,
   ArrowRight,
-  Circle,
   CheckCircle2,
   BadgeCheck,
   Sparkles,
+  Download,
+  FileText,
+  Loader2,
 } from "lucide-react";
+import { createPayment } from "@/api/paymentApi";
+import { toast } from "react-toastify";
+import { generateInvoicePDF } from "@/lib/generateInvoice";
 
-const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
+const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete, user }) => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState({});
+  const [paymentData, setPaymentData] = useState(null);
+  const [orderId, setOrderId] = useState(null);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -85,7 +88,6 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
       [name]: value,
     }));
 
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -137,24 +139,80 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
+    e.stopPropagation();
 
     if (!validateStep(3)) return;
 
     setIsProcessing(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await createPayment({
+        ...formData,
+        paymentMethod,
+        userId: user?.id,
+        userName: user?.name,
+        totalAmount: cartTotal,
+        items: cartItems,
+      });
 
-    setIsProcessing(false);
-    setIsSuccess(true);
+      console.log("Payment response:", res);
 
-    // Reset after success
-    setTimeout(() => {
+
+      if (res.success ) {
+        const generatedOrderId = res.orderId || res.data.orderId;
+
+        if (!generatedOrderId) {
+          throw new Error("No order ID received from server");
+        }
+
+        setOrderId(generatedOrderId);
+        setPaymentData({
+          ...formData,
+          paymentMethod,
+          orderId: generatedOrderId,
+          ...res.data,
+        });
+
+        toast.success("Payment processed successfully!");
+        setIsSuccess(true);
+      } else {
+        toast.error(res.message || "Payment processing failed!");
+      }
+    } catch (error) {
+      toast.error("An error occurred while processing payment.");
+      console.error("Payment error:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDownloadInvoice = () => {
+    if (paymentData && orderId) {
+      try {
+        const invoiceData = {
+          ...paymentData,
+          orderId: orderId,
+        };
+        generateInvoicePDF(invoiceData, cartItems, cartTotal);
+        toast.success("Invoice downloaded successfully!");
+      } catch (error) {
+        toast.error("Failed to generate invoice");
+        console.error("Invoice generation error:", error);
+      }
+    } else {
+      toast.error("Order information not available");
+    }
+  };
+
+  const handleClose = () => {
+    if (!isProcessing) {
       setIsCheckoutOpen(false);
-      setIsSuccess(false);
       setCurrentStep(1);
-      setPaymentMethod("cash");
+      setErrors({});
+      setIsSuccess(false);
+      setPaymentData(null);
+      setOrderId(null);
       setFormData({
         customerName: "",
         phone: "",
@@ -167,16 +225,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
         deliveryTime: "",
         receivedAmount: "",
       });
-      setErrors({});
       if (onCheckoutComplete) onCheckoutComplete();
-    }, 2500);
-  };
-
-  const handleClose = () => {
-    if (!isProcessing) {
-      setIsCheckoutOpen(false);
-      setCurrentStep(1);
-      setErrors({});
     }
   };
 
@@ -224,6 +273,17 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                 Transaction processed successfully
               </p>
 
+              {orderId && (
+                <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full mb-4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Order ID:
+                  </span>
+                  <span className="font-mono font-bold text-gray-900 dark:text-white">
+                    {orderId}
+                  </span>
+                </div>
+              )}
+
               <div className="inline-block bg-gradient-to-r from-emerald-500 to-green-500 text-white text-4xl font-bold px-8 py-3 rounded-2xl mb-6 shadow-xl">
                 ${cartTotal?.toFixed(2)}
               </div>
@@ -235,7 +295,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                       Customer
                     </span>
                     <span className="font-semibold text-gray-900 dark:text-white">
-                      {formData.customerName}
+                      {paymentData?.customerName || formData.customerName}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
@@ -243,7 +303,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                       Payment Method
                     </span>
                     <span className="font-semibold text-gray-900 dark:text-white capitalize">
-                      {paymentMethod}
+                      {paymentData?.paymentMethod || paymentMethod}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
@@ -267,12 +327,26 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                 </div>
               </div>
 
-              <Button
-                onClick={handleClose}
-                className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
-              >
-                Close & Continue
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                <Button
+                  onClick={handleDownloadInvoice}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                >
+                  <Download className="w-5 h-5" />
+                  Download Invoice PDF
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                >
+                  Close & Continue
+                </Button>
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <FileText className="w-3.5 h-3.5" />
+                <span>Invoice automatically saved to your downloads</span>
+              </div>
             </div>
           </div>
         ) : (
@@ -309,9 +383,11 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                     <div key={step} className="flex items-center flex-1">
                       <div className="flex flex-col items-center relative z-10">
                         <button
+                          type="button"
                           onClick={() => {
                             if (step < currentStep) setCurrentStep(step);
                           }}
+                          disabled={step >= currentStep}
                           className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                             currentStep > step
                               ? "bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 cursor-pointer hover:scale-105"
@@ -888,7 +964,7 @@ const CheckOutModal = ({ cartTotal, cartItems, onCheckoutComplete }) => {
                       >
                         {isProcessing ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             Processing...
                           </>
                         ) : (

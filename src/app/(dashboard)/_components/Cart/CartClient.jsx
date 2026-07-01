@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import CheckOutModal from "../CheckOutModal/CheckOutModal";
 
-export default function CartClient({ initialCartItems }) {
+export default function CartClient({ initialCartItems, user }) {
   const [cartItems, setCartItems] = useState(initialCartItems || []);
   const [discountType, setDiscountType] = useState("none"); // 'none', 'percentage', 'fixed', 'promo'
   const [discountValue, setDiscountValue] = useState("");
@@ -631,7 +631,7 @@ export default function CartClient({ initialCartItems }) {
                     <CreditCard className="w-5 h-5" />
                     Proceed to Checkout
                   </button> */}
-                  <CheckOutModal cartTotal={subtotal} cartItems={cartItems} />
+                  <CheckOutModal cartTotal={subtotal} cartItems={cartItems} user={user} />
 
                   {/* Trust Badges */}
                   <div className="mt-6 space-y-3">

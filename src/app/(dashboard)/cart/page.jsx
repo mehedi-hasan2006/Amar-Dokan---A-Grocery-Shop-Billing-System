@@ -7,5 +7,5 @@ export default async function CartPage() {
   const user = await userSessionData();
   const cartItems = await getCartItems(user?.id);
 
-  return <CartClient initialCartItems={cartItems || []} />;
+  return <CartClient initialCartItems={cartItems || []} user={user} />;
 }

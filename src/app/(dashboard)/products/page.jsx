@@ -13,9 +13,14 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import ProductDeleteButton from "../_components/ProductDeleteButton/ProductDeleteButton";
+import AddToCartButton from "../_components/AddToCartButton/AddToCartButton";
+import { userSessionData } from "@/lib/user/userSessionData";
+import { getCartItems } from "@/api/cartApi";
 
 async function AllProductsPage() {
   const products = await getProducts();
+  const user = await userSessionData();
+  const cartItems = await getCartItems(user?.id);
 
   return (
     <div className="min-h-screen w-full bg-gray-50/50 dark:bg-gray-950 p-4 md:p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300 selection:bg-gray-900 selection:text-white dark:selection:bg-white dark:selection:text-gray-900">
@@ -48,12 +53,14 @@ async function AllProductsPage() {
               />
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button className="relative p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/80 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm active:scale-95 group shrink-0">
-                <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[11px] rounded-full flex items-center justify-center font-bold shadow-sm">
-                  0
-                </span>
-              </button>
+              <Link href="/cart" className="relative shrink-0">
+                <button className="relative cursor-pointer p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/80 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm active:scale-95 group shrink-0">
+                  <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[11px] rounded-full flex items-center justify-center font-bold shadow-sm">
+                    {cartItems.length}
+                  </span>
+                </button>
+              </Link>
               <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-xl text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-sm active:scale-[0.98]">
                 <Plus className="w-4 h-4" />
                 Add Product
@@ -176,19 +183,24 @@ async function AllProductsPage() {
 
                   {/* Primary & Contextual Actions */}
                   <div className="space-y-2 shrink-0">
-                    <button className="w-full bg-gray-950 dark:bg-white text-white dark:text-gray-950 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]">
-                      <ShoppingCart className="w-4 h-4" />
-                      Add to Cart
-                    </button>
+                    <div>
+                      <AddToCartButton product={product} user={user} />
+                    </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                      <Link href={`/products/${product._id}`}>
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/products/${product._id}`}
+                        className="flex-1"
+                      >
                         <button className="flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200/80 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-all active:scale-[0.96] cursor-pointer">
                           <Eye className="w-3.5 h-3.5" />
                           Details
                         </button>
                       </Link>
-                      <Link href={`/products/${product._id}/edit`}>
+                      <Link
+                        href={`/products/${product._id}/edit`}
+                        className="flex-1"
+                      >
                         <button className="flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-950/80 rounded-lg transition-all active:scale-[0.96] cursor-pointer">
                           <Pencil className="w-3.5 h-3.5" />
                           Edit
@@ -198,7 +210,7 @@ async function AllProductsPage() {
                       {/* <button className="flex items-center justify-center px-2 py-2 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/80 rounded-lg transition-all active:scale-[0.96] cursor-pointer">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button> */}
-                      <div>
+                      <div className="flex-1">
                         <ProductDeleteButton product={product} />
                       </div>
                     </div>
